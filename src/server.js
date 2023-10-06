@@ -9,7 +9,7 @@ const jsonHandler = require('./jsonResponses.js');
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
 const parseBody = (request, response, handler) => {
-  const users = [];
+  const chars = [];
 
   request.on('error', (err) => {
     console.dir(err);
@@ -18,25 +18,23 @@ const parseBody = (request, response, handler) => {
   });
 
   request.on('data', (chunk) => {
-    users.push(chunk);
+    chars.push(chunk);
   });
 
   request.on('end', () => {
-    const usersString = Buffer.concat(users).toString();
-    console.log(usersString);
-    console.log(`HERE IS THE USERS THING: ${users}`);
-    const usersBody = JSON.parse(users);
+    const charsString = Buffer.concat(chars).toString();
+    const charsBody = JSON.parse(chars);
 
     // Once we have the bodyParams object, we will call the handler function. We then
     // proceed much like we would with a GET request.
-    handler(request, response, usersBody);
+    handler(request, response, charsBody);
   });
 };
 
 // handle POST requests
 const handlePost = (request, response, parsedUrl) => {
   // If they go to /addUser
-  if (parsedUrl.pathname === '/addUser') {
+  if (parsedUrl.pathname === '/addChar') {
     // Call our below parseBody handler, and in turn pass in the
     // jsonHandler.addUser function as the handler callback function.
     parseBody(request, response, jsonHandler.addUser);
@@ -48,8 +46,8 @@ const handleGet = (request, response, parsedUrl) => {
   // route to correct method based on url
   if (parsedUrl.pathname === '/style.css') {
     htmlHandler.getCSS(request, response);
-  } else if (parsedUrl.pathname === '/getUsers') {
-    jsonHandler.getUsers(request, response);
+  } else if (parsedUrl.pathname === '/getChars') {
+    jsonHandler.getChars(request, response);
   } else if (parsedUrl.pathname === '/') {
     htmlHandler.getIndex(request, response);
   } else {

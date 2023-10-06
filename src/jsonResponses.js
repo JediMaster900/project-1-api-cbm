@@ -1,4 +1,4 @@
-const users = [];
+const chars = [];
 
 // function to send a json object
 const respondJSON = (request, response, status, object) => {
@@ -15,41 +15,41 @@ const respondJSON = (request, response, status, object) => {
 };
 
 // function to show a success status code
-const addUser = (request, response, body) => {
+const addChar = (request, response, body) => {
   // if either field is empty, send back a 400
-  if (body.name === '' || body.age === '') {
+  if (body.name === '' || body.atk === '') {
     const responseJSON = {
       id: 'addUserMissingParams',
-      message: 'Name and age are both required.',
+      message: 'Name and atk are both required.',
     };
     console.log(`Here is the response: ${responseJSON}`);
     return respondJSON(request, response, 400, responseJSON);
   }
 
-  // check if user is in system, and if so, change the age
-  if (users.some((e) => e.name === body.name)
-    && users[users.findIndex((e) => e.name)].age !== body.age) {
-    users[users.findIndex((e) => e.name)].age = body.age;
+  // check if user is in system, and if so, change the attack
+  if (chars.some((e) => e.name === body.name)
+    && chars[chars.findIndex((e) => e.name)].atk !== body.atk) {
+    chars[chars.findIndex((e) => e.name)].atk = body.atk;
     return respondJSON(request, response, 204);
   }
 
   // user is not in the system, and fields are filled, so they will be added
 
-  users.push(body);
+  chars.push(body);
 
   // send our json object that contains the user info with a success created status code
   return respondJSON(request, response, 201, body);
 };
 
-// function to get the list of users (or just a head response)
-const getUsers = (request, response) => {
-  // head request, so don't send the actual list of users
+// function to get the list of chars (or just a head response)
+const getChars = (request, response) => {
+  // head request, so don't send the actual list of chars
   if (request.method === 'HEAD') {
     return respondJSON(request, response, 200);
   }
 
-  // send our json list of users with a success created status code
-  return respondJSON(request, response, 200, users);
+  // send our json list of chars with a success created status code
+  return respondJSON(request, response, 200, chars);
 };
 
 // function to show not found error
@@ -71,7 +71,7 @@ const notFound = (request, response) => {
 // In this syntax, you can do getIndex:getIndex, but if they
 // are the same name, you can short handle to just getIndex,
 module.exports = {
-  addUser,
-  getUsers,
+  addChar,
+  getChars,
   notFound
 };
