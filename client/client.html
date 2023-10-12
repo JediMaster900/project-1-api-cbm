@@ -5,6 +5,8 @@
   <link rel="stylesheet" type="text/css" href="/style.css">
   
   <script>
+    let charList;
+
 /*A function for handling our fetch response. Read init and sendFetch first.
 
     Like sendFetch(), handleResponse() is marked as an async function. This is because we
@@ -99,6 +101,31 @@
       }
     };
 
+    const sendFetchDuel = async (char1, char2) => {
+
+      const duelChars = {
+        char1: char1,
+        char2: char2
+      }
+
+      const options = {
+        method: 'GET',
+        headers: {'Content-Type' : 'application/json'},
+        body: JSON.stringify(duelChars)
+      }
+
+      let response = await fetch('/duelChars', options);
+
+      handleResponse(response, options.method);
+    }
+
+    const updateCharList = () => {
+      charList = sendFetch('/getChars', 'get');
+      console.log("The character list has been updated. Here it is: " + charList);
+
+
+    };
+
     /*init is the starting point of our client side code. Below the function, we
       have window.onload = init, which means that init will automatically be called
       when the page loads.
@@ -111,6 +138,7 @@
       const nameField = document.getElementById("nameField");
       const attackField = document.getElementById("attackField");
       const methodSelect = document.getElementById("methodSelect");
+      const duelSelect = document.getElementById("duelField");
 
       /*As discussed in the Accept Header demo, we want to have our buttons call some
         code when they are clicked. To do this, we need a function that we can call that
@@ -123,6 +151,7 @@
       addCharButton.addEventListener('click', (e) => {
         e.preventDefault();
         sendFetch('/addChar', 'POST', nameField.value, attackField.value);
+        updateCharList();
         return false;
       });
 
@@ -131,6 +160,8 @@
         sendFetch(urlSelector.value, methodSelect.value);
         return false;
       });
+
+      updateCharList();
     };
 
     window.onload = init;
@@ -148,10 +179,14 @@
       <input id="agilityField" type="number" name="agility" min="0" max="100" step="1"/>
       <input id="addCharButton" type="submit" value="Add Character" />
     </form>
+    <form id="duelForm" action="/duelChars" method="get">
+      <select id='duelField'>
+        <option value='choose char one for duel'>???</option>
+      </select>
+    </form>
     <form id="charForm" action="/getChars" method="get">
       <select id='urlField'>
         <option value='/getChars'>/getChars</option>
-        <option value='/notReal'>/notReal</option>
       </select>
       <select id="methodSelect">
         <option value="get">GET</option>

@@ -41,6 +41,10 @@ const addChar = (request, response, body) => {
   return respondJSON(request, response, 201, body);
 };
 
+const duelChars = (request, response, body) => {
+  
+};
+
 // function to get the list of chars (or just a head response)
 const getChars = (request, response) => {
   // head request, so don't send the actual list of chars
