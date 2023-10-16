@@ -60,11 +60,17 @@
         else if(response.status === 200 && method == 'get'){
           content.innerHTML += `<p>${JSON.stringify(resObj)}</p>`
         }
+        else if(response.status === 200 && method == 'POST'){
+          content.innerHTML += `<p>Message: ${resObj.message}</p>`
+        }
+        else if(response.status === 400){
+          content.innerHTML += `<p>Message: ${resObj.message}</p>`
+        }
         console.log(resObj);
       }
     };
 
-    const sendFetch = async (url, method, charName, charAttack) => {
+    const sendFetch = async (url, method, charName, charAttack, charAgility) => {
       console.log("Send Fetch was called.");
 
       let response;
@@ -73,7 +79,8 @@
 
         const newChar = {
         name: charName,
-        atk: charAttack
+        atk: charAttack,
+        agl: charAgility
         }
 
         const options = {
@@ -103,13 +110,27 @@
 
     const sendFetchDuel = async (char1, char2) => {
 
+      let realChar1;
+      let realChar2;
+
+      for(let i = 0; i < charList.length; i++){
+        if(charList[i].name == char1){
+          realChar1 = charList[i];
+        }
+
+        if(charList[i].name == char2){
+          realChar2 = charList[i];
+          break;
+        }
+      }
+
       const duelChars = {
-        char1: char1,
-        char2: char2
+        char1: realChar1,
+        char2: realChar2
       }
 
       const options = {
-        method: 'GET',
+        method: 'POST',
         headers: {'Content-Type' : 'application/json'},
         body: JSON.stringify(duelChars)
       }
@@ -119,11 +140,47 @@
       handleResponse(response, options.method);
     }
 
-    const updateCharList = () => {
-      charList = sendFetch('/getChars', 'get');
-      console.log("The character list has been updated. Here it is: " + charList);
+    const updateCharList = async () => {
+      const options = {
+        method: 'GET',
+        headers: {'Content-Type' : 'application/json'},
+      }
 
+      response = await fetch('/getChars', options);
+      let resObj = await response.json();
 
+      charList = resObj;
+
+      console.log("The character list has been updated. Here it is: " + JSON.stringify(charList));
+
+      let duelSelect1 = document.getElementById("duelField1");
+      let duelSelect2 = document.getElementById("duelField2");
+
+      while (duelSelect1.hasChildNodes()) {
+        duelSelect1.removeChild(duelSelect1.firstChild);
+      }
+
+      while (duelSelect2.hasChildNodes()) {
+        duelSelect2.removeChild(duelSelect2.firstChild);
+      }
+
+      for (let i = 0; i < charList.length; i++) {
+        let char = charList[i];
+        let newOption = document.createElement("option");
+        console.log(char.name);
+        newOption.textContent = char.name;
+        newOption.value = char.name;
+        duelSelect1.appendChild(newOption);
+      }
+
+      for (let i = 0; i < charList.length; i++) {
+        let char = charList[i];
+        let newOption = document.createElement("option");
+        console.log(char.name);
+        newOption.textContent = char.name;
+        newOption.value = char.name;
+        duelSelect2.appendChild(newOption);
+      }
     };
 
     /*init is the starting point of our client side code. Below the function, we
@@ -137,8 +194,11 @@
       const getCharsButton = document.getElementById("getCharsButton");
       const nameField = document.getElementById("nameField");
       const attackField = document.getElementById("attackField");
+      const agilityField = document.getElementById("agilityField");
       const methodSelect = document.getElementById("methodSelect");
-      const duelSelect = document.getElementById("duelField");
+      const duelSelect1 = document.getElementById("duelField1");
+      const duelSelect2 = document.getElementById("duelField2");
+      const duelCharsButton = document.getElementById("duelCharsButton");
 
       /*As discussed in the Accept Header demo, we want to have our buttons call some
         code when they are clicked. To do this, we need a function that we can call that
@@ -148,16 +208,26 @@
       */
 
       //Once we have the above functions, we can hook them up to the click events of each button.
+
+      // event for adding a character to the list in the server
       addCharButton.addEventListener('click', (e) => {
         e.preventDefault();
-        sendFetch('/addChar', 'POST', nameField.value, attackField.value);
+        sendFetch('/addChar', 'POST', nameField.value, attackField.value, agilityField.value);
         updateCharList();
         return false;
       });
 
+      // event for getting the character list from the server returned to the user
       getCharsButton.addEventListener('click', (e) => {
         e.preventDefault();
         sendFetch(urlSelector.value, methodSelect.value);
+        return false;
+      });
+
+      // event for dueling the two characters chosen in the select
+      duelCharsButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        sendFetchDuel(duelSelect1.value, duelSelect2.value);
         return false;
       });
 
@@ -169,7 +239,7 @@
 </head>
 <body>
   <section id="top">
-    <h3>POST Status Code Tests</h3>
+    <h3>Character Dueler</h3>
     <form id="nameForm" action="/addChar" method="post">
       <label for="name">Name: </label>
       <input id="nameField" type="text" name="name" />
@@ -180,10 +250,19 @@
       <input id="addCharButton" type="submit" value="Add Character" />
     </form>
     <form id="duelForm" action="/duelChars" method="get">
-      <select id='duelField'>
+      <p>Attacking Character</p>
+      <select id='duelField1'>
+        <option value='choose char one for duel'>???</option>
+      </select>
+      <p>VS</p>
+      <p>Defending Character</p>
+      <select id='duelField2'>
         <option value='choose char one for duel'>???</option>
       </select>
     </form>
+    <p></p>
+    <input id="duelCharsButton" type="submit" value="DUEL" />
+    <p></p>
     <form id="charForm" action="/getChars" method="get">
       <select id='urlField'>
         <option value='/getChars'>/getChars</option>

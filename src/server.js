@@ -22,7 +22,6 @@ const parseBody = (request, response, handler) => {
   });
 
   request.on('end', () => {
-    const charsString = Buffer.concat(chars).toString();
     const charsBody = JSON.parse(chars);
 
     // Once we have the bodyParams object, we will call the handler function. We then
@@ -33,11 +32,15 @@ const parseBody = (request, response, handler) => {
 
 // handle POST requests
 const handlePost = (request, response, parsedUrl) => {
-  // If they go to /addUser
+  // If they go to /addChar
   if (parsedUrl.pathname === '/addChar') {
     // Call our below parseBody handler, and in turn pass in the
-    // jsonHandler.addUser function as the handler callback function.
-    parseBody(request, response, jsonHandler.addUser);
+    // jsonHandler.addChar function as the handler callback function.
+    parseBody(request, response, jsonHandler.addChar);
+  }
+
+  if (parsedUrl.pathname === '/duelChars') {
+    parseBody(request, response, jsonHandler.duelChars);
   }
 };
 

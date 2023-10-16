@@ -1,4 +1,5 @@
 const fs = require('fs'); // pull in the file system module
+// const { request } = require('http');
 
 // Load our index fully into memory.
 // THIS IS NOT ALWAYS THE BEST IDEA.
@@ -6,6 +7,8 @@ const fs = require('fs'); // pull in the file system module
 // synchronous operations or load entire files into memory.
 const index = fs.readFileSync(`${__dirname}/../client/client.html`);
 const css = fs.readFileSync(`${__dirname}/../client/style.css`);
+// const atkImg = fs.readFileSync(`${__dirname}/../img/atk-success.jpg`);
+// const aglImg = fs.readFileSync(`${__dirname}/../img/agl-success.jpg`);
 
 // function to handle the index page
 const getIndex = (request, response) => {
@@ -22,6 +25,12 @@ const getCSS = (request, response) => {
   response.write(css);
   response.end();
 };
+
+// const getAtkImg = (request, response) => {
+//   response.writeHead(200, { 'Content-Type': 'img/jpg' })
+//   response.write(atkImg);
+//   response.end();
+// };
 
 // exports to set functions to public.
 // In this syntax, you can do getIndex:getIndex, but if they

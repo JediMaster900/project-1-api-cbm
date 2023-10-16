@@ -19,7 +19,7 @@ const addChar = (request, response, body) => {
   // if either field is empty, send back a 400
   if (body.name === '' || body.atk === '') {
     const responseJSON = {
-      id: 'addUserMissingParams',
+      id: 'addCharMissingParams',
       message: 'Name and atk are both required.',
     };
     console.log(`Here is the response: ${responseJSON}`);
@@ -42,7 +42,39 @@ const addChar = (request, response, body) => {
 };
 
 const duelChars = (request, response, body) => {
-  
+  // if the same char is chosen for both fields, return a 400
+  if (body.char1.name === body.char2.name) {
+    const responseJSON = {
+      id: 'duelCharSameParams',
+      message: 'The same character has been chosen for both fields.',
+    };
+    return respondJSON(request, response, 400, responseJSON);
+  }
+
+  const char1num = Math.floor(Math.random() * 11) + body.char1.atk;
+  const char2num = Math.floor(Math.random() * 11) + body.char2.agl;
+
+  if (char1num > char2num) {
+    const responseJSON = {
+      message: `${body.char1.name} successfully attacked ${body.char2.name}!`,
+    };
+
+    return respondJSON(request, response, 200, responseJSON);
+  }
+
+  if (char1num < char2num) {
+    const responseJSON = {
+      message: `${body.char2.name} successfully dodged ${body.char1.name}'s attack!`,
+    };
+
+    return respondJSON(request, response, 200, responseJSON);
+  }
+
+  const responseJSON = {
+    message: 'Somehow, it was a tie!',
+  };
+
+  return respondJSON(request, response, 200, responseJSON);
 };
 
 // function to get the list of chars (or just a head response)
@@ -77,5 +109,6 @@ const notFound = (request, response) => {
 module.exports = {
   addChar,
   getChars,
-  notFound
+  duelChars,
+  notFound,
 };
